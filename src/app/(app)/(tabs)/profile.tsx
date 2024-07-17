@@ -1,11 +1,12 @@
 import Slider from "@react-native-community/slider"
 import { observer } from "mobx-react-lite"
 import React from "react"
-import { TextStyle, View, ViewStyle } from "react-native"
+import { LayoutAnimation, TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text, TextField, Toggle } from "src/components"
 import { TxKeyPath } from "src/i18n"
 import { useStores } from "src/models"
 import { colors, spacing } from "src/theme"
+import { useAppTheme } from "src/utils/useAppTheme"
 import { useHeader } from "src/utils/useHeader"
 
 export default observer(function ProfileScreen() {
@@ -13,6 +14,13 @@ export default observer(function ProfileScreen() {
     profileStore: { profile },
     authenticationStore: { logout },
   } = useStores()
+
+  const { themeContext, setThemeContextOverride } = useAppTheme()
+
+  const toggleTheme = React.useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut) // Animate the transition
+    setThemeContextOverride(themeContext === "dark" ? "light" : "dark")
+  }, [themeContext, setThemeContextOverride])
 
   useHeader(
     {
@@ -104,7 +112,10 @@ export default observer(function ProfileScreen() {
         labelPosition="left"
         containerStyle={$textField}
         value={darkMode}
-        onPress={() => setProp("darkMode", !darkMode)}
+        onPress={() => {
+          setProp("darkMode", !darkMode)
+          toggleTheme()
+        }}
       />
       <Text preset="formLabel" tx="demoProfileScreen.skills" />
       <TextField
